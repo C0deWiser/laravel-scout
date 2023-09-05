@@ -68,3 +68,7 @@ use App\Models\Flight;
     'searchable' => [User::class, Flight::class],
 ],
 ```
+
+## Console
+
+Use `meilisearch:rebuild` command to completely rebuild Meilisearch index.  
