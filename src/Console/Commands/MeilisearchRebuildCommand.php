@@ -5,14 +5,14 @@ namespace Codewiser\Meilisearch\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
-class ScoutCommand extends Command
+class MeilisearchRebuildCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'meilisearch:rebuild';
+    protected $signature = 'scout:meilisearch-rebuild';
 
     /**
      * The console command description.

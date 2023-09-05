@@ -4,7 +4,7 @@ namespace Codewiser\Meilisearch;
 
 use Codewiser\Meilisearch\Attributes\MeilisearchFilterableAttributes;
 use Codewiser\Meilisearch\Attributes\MeilisearchSortableAttributes;
-use Codewiser\Meilisearch\Console\Commands\ScoutCommand;
+use Codewiser\Meilisearch\Console\Commands\MeilisearchRebuildCommand;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,7 +26,7 @@ class MeilisearchServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
 
             $commands = [
-                ScoutCommand::class,
+                MeilisearchRebuildCommand::class,
             ];
 
             $this->commands($commands);

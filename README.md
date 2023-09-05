@@ -71,4 +71,5 @@ use App\Models\Flight;
 
 ## Console
 
-Use `meilisearch:rebuild` command to completely rebuild Meilisearch index.  
+Use `scout:meilisearch-rebuild` command to completely rebuild Meilisearch 
+index.  
