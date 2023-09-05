@@ -19,7 +19,7 @@ class MeilisearchRebuildCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Sync index settings and re-import all models';
+    protected $description = 'Sync index settings and re-import all models (Meilisearch only)';
 
     /**
      * Execute the console command.
