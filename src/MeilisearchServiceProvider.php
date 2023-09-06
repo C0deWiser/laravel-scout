@@ -21,7 +21,7 @@ class MeilisearchServiceProvider extends ServiceProvider
         }
     }
 
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         if ($this->app->runningInConsole()) {
 
@@ -33,35 +33,18 @@ class MeilisearchServiceProvider extends ServiceProvider
         }
     }
 
-    protected function setupMeilisearchIndexSettings()
+    protected function setupMeilisearchIndexSettings(): void
     {
         $config = [];
-        $searchable = config('scout.meilisearch.searchable', []);
+        $searchable = config('scout.meilisearch.searchable', Meilisearch::searchables());
 
         foreach ($searchable as $model) {
-            $config[$model] = $this->buildMeilisearchIndexSettings($model);
+            $config[$model] = [
+                'filterableAttributes' => Meilisearch::filterables($model),
+                'sortableAttributes'   => Meilisearch::sortables($model),
+            ];
         }
 
         config()->set('scout.meilisearch.index-settings', $config);
-    }
-
-    protected function buildMeilisearchIndexSettings(string $model): array
-    {
-        $filterableAttributes = [];
-        $sortableAttributes = [];
-
-        foreach ((new \ReflectionMethod($model, 'toSearchableArray'))->getAttributes() as $attribute) {
-            if ($attribute->getName() === MeilisearchFilterableAttributes::class) {
-                $filterableAttributes = array_merge($filterableAttributes, Arr::wrap($attribute->getArguments()[0]));
-            }
-            if ($attribute->getName() === MeilisearchSortableAttributes::class) {
-                $sortableAttributes = array_merge($sortableAttributes, Arr::wrap($attribute->getArguments()[0]));
-            }
-        }
-
-        return [
-            'filterableAttributes' => $filterableAttributes,
-            'sortableAttributes'   => $sortableAttributes,
-        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Codewiser\Meilisearch\Console\Commands;
 
+use Codewiser\Meilisearch\Meilisearch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -34,7 +35,7 @@ class MeilisearchRebuildCommand extends Command
         $this->call('scout:delete-all-indexes');
         $this->call('scout:sync-index-settings');
 
-        $searchable = config('scout.meilisearch.searchable', []);
+        $searchable = config('scout.meilisearch.searchable', Meilisearch::searchables());
 
         foreach ($searchable as $class) {
             $this->call('scout:import', ['model' => $class]);
