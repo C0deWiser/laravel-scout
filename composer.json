@@ -17,7 +17,8 @@
     "require": {
         "php": "^8.0",
         "laravel/framework": ">=10.0",
-        "laravel/scout": ">=10.0"
+        "laravel/scout": ">=10.0",
+        "meilisearch/meilisearch-php": "^1.4"
     },
     "extra": {
         "laravel": {
