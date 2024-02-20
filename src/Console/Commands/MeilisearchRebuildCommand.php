@@ -13,14 +13,14 @@ class MeilisearchRebuildCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scout:meilisearch-rebuild';
+    protected $signature = 'scout:meilisearch-import';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync index settings and re-import all models (Meilisearch only)';
+    protected $description = 'Re-import all models (Meilisearch only)';
 
     /**
      * Execute the console command.
@@ -31,9 +31,6 @@ class MeilisearchRebuildCommand extends Command
         // The makeAllSearchableUsing method may not be applicable when using a queue to batch import models.
         // Relationships are not restored when model collections are processed by jobs.
         config()->set('scout.queue', false);
-
-        $this->call('scout:delete-all-indexes');
-        $this->call('scout:sync-index-settings');
 
         $searchable = config('scout.meilisearch.searchable', Meilisearch::searchables());
 
