@@ -1,15 +1,18 @@
 <?php
 
-namespace Codewiser\Meilisearch;
+namespace Codewiser\Scout\Meilisearch;
 
-use Codewiser\Meilisearch\Attributes\MeilisearchFilterableAttributes;
-use Codewiser\Meilisearch\Attributes\MeilisearchSortableAttributes;
+use Codewiser\Scout\Attributes\MeilisearchFilterableAttributes;
+use Codewiser\Scout\Attributes\MeilisearchSortableAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
 
 class Meilisearch
 {
+    /**
+     * Get all classes, searchable by meilisearch.
+     */
     static public function searchables(): array
     {
         $searchable = [];
@@ -27,6 +30,9 @@ class Meilisearch
         return $searchable;
     }
 
+    /**
+     * Get attributes of a model, filterable by meilisearch.
+     */
     static public function filterables(string|Model $model): array
     {
         $filterable = [];
@@ -40,6 +46,9 @@ class Meilisearch
         return $filterable;
     }
 
+    /**
+     * Get attributes of a model, sortable by meilisearch.
+     */
     static public function sortables(string|Model $model): array
     {
         $sortable = [];

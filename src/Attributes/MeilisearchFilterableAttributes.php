@@ -1,6 +1,6 @@
 <?php
 
-namespace Codewiser\Meilisearch\Attributes;
+namespace Codewiser\Scout\Attributes;
 
 use Attribute;
 use Illuminate\Support\Arr;

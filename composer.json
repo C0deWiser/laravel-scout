@@ -1,11 +1,11 @@
 {
-    "name": "codewiser/laravel-meilisearch",
-    "description": "Laravel helper for Meilisearch Scout driver",
+    "name": "codewiser/laravel-scout",
+    "description": "Laravel Scout helpers",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Codewiser\\Meilisearch\\": "src/"
+            "Codewiser\\Scout\\": "src/"
         }
     },
     "authors": [
@@ -17,14 +17,24 @@
     "require": {
         "php": "^8.0",
         "laravel/framework": ">=10.0",
-        "laravel/scout": ">=10.0",
-        "meilisearch/meilisearch-php": "^1.4"
+        "laravel/scout": ">=10.0"
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Codewiser\\Meilisearch\\MeilisearchServiceProvider"
+                "Codewiser\\Scout\\ScoutServiceProvider"
             ]
+        }
+    },
+    "require-dev": {
+        "meilisearch/meilisearch-php": "^1.7",
+        "algolia/algoliasearch-client-php": "^3.4",
+        "typesense/typesense-php": "^4.9",
+        "symfony/http-client": "^6.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     }
 }

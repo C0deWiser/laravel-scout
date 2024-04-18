@@ -1,10 +1,9 @@
 <?php
 
-namespace Codewiser\Meilisearch\Console\Commands;
+namespace Codewiser\Scout\Console\Commands;
 
-use Codewiser\Meilisearch\Meilisearch;
+use Codewiser\Scout\Meilisearch\Meilisearch;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 
 class MeilisearchRebuildCommand extends Command
 {

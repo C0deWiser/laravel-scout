@@ -1,14 +1,12 @@
 <?php
 
-namespace Codewiser\Meilisearch;
+namespace Codewiser\Scout;
 
-use Codewiser\Meilisearch\Attributes\MeilisearchFilterableAttributes;
-use Codewiser\Meilisearch\Attributes\MeilisearchSortableAttributes;
-use Codewiser\Meilisearch\Console\Commands\MeilisearchRebuildCommand;
-use Illuminate\Support\Arr;
+use Codewiser\Scout\Console\Commands\MeilisearchRebuildCommand;
+use Codewiser\Scout\Meilisearch\Meilisearch;
 use Illuminate\Support\ServiceProvider;
 
-class MeilisearchServiceProvider extends ServiceProvider
+class ScoutServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
