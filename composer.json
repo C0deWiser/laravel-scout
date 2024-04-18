@@ -4,7 +4,7 @@
     "type": "library",
     "license": "MIT",
     "replace": {
-        "codewiser/laravel-meilisearch": "Abandoned"
+        "codewiser/laravel-meilisearch": "^1.0.5"
     },
 
     "autoload": {
