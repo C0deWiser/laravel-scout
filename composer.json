@@ -3,6 +3,10 @@
     "description": "Laravel Scout helpers",
     "type": "library",
     "license": "MIT",
+    "replace": {
+        "codewiser/laravel-meilisearch": "Abandoned"
+    },
+
     "autoload": {
         "psr-4": {
             "Codewiser\\Scout\\": "src/"
