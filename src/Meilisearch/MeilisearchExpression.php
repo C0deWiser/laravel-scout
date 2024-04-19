@@ -20,7 +20,13 @@ class MeilisearchExpression
 
     public function value(): string
     {
-        return $this->value ?? '';
+        $value = $this->value ?? '';
+
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->getTimestamp();
+        }
+
+        return $value;
     }
 
     public function operator(): string

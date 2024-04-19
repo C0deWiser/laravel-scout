@@ -2,6 +2,9 @@
 
 namespace Codewiser\Scout\Meilisearch;
 
+use Carbon\CarbonPeriod;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Conditionable;
 
 class MeilisearchBuilder
@@ -24,6 +27,9 @@ class MeilisearchBuilder
         return trim($str);
     }
 
+    /**
+     * Add a basic where clause to the query.
+     */
     public function where(
         string|\Closure $column,
         $operator = null,
@@ -61,6 +67,9 @@ class MeilisearchBuilder
         return $this;
     }
 
+    /**
+     * Add a basic "OR" clause to the query.
+     */
     public function orWhere(string|\Closure $column, $value = null): static
     {
         return $this->where(
@@ -70,6 +79,9 @@ class MeilisearchBuilder
         );
     }
 
+    /**
+     * Add a basic "NOT" clause to the query.
+     */
     public function whereNot(string|\Closure $column, $value = null, $boolean = 'AND'): static
     {
         return $this->where(
@@ -80,6 +92,9 @@ class MeilisearchBuilder
         );
     }
 
+    /**
+     * Add a basic "OR NOT" clause to the query.
+     */
     public function orWhereNot(string|\Closure $column, $value = null): static
     {
         return $this->whereNot(
@@ -89,8 +104,23 @@ class MeilisearchBuilder
         );
     }
 
-    public function whereIn(string $column, array $values, $boolean = 'AND', $not = false): static
+    /**
+     * Add an "IN" clause to the query.
+     */
+    public function whereIn(string $column, $values, $boolean = 'AND', $not = false): static
     {
+        if ($values instanceof Arrayable) {
+            $values = $values->toArray();
+        }
+
+        $values = Arr::wrap($values);
+
+        if (count($values) !== count(Arr::flatten($values, 1))) {
+            throw new \InvalidArgumentException('Nested arrays may not be passed to whereIn method.');
+        }
+
+        $values = Arr::map($values, fn($value) => $value instanceof \DateTimeInterface ? $value->getTimestamp() : $value);
+
         return $this->where(
             column: $column,
             operator: 'IN',
@@ -100,7 +130,10 @@ class MeilisearchBuilder
         );
     }
 
-    public function orWhereIn(string $column, array $values): static
+    /**
+     * Add an "OR IN" clause to the query.
+     */
+    public function orWhereIn(string $column, $values): static
     {
         return $this->whereIn(
             column: $column,
@@ -109,7 +142,10 @@ class MeilisearchBuilder
         );
     }
 
-    public function whereNotIn(string $column, array $values): static
+    /**
+     * Add a "NOT IN" clause to the query.
+     */
+    public function whereNotIn(string $column, $values): static
     {
         return $this->whereIn(
             column: $column,
@@ -118,7 +154,10 @@ class MeilisearchBuilder
         );
     }
 
-    public function orWhereNotIn(string $column, array $values): static
+    /**
+     * Add an "OR NOT IN" clause to the query.
+     */
+    public function orWhereNotIn(string $column, $values): static
     {
         return $this->whereIn(
             column: $column,
@@ -128,8 +167,23 @@ class MeilisearchBuilder
         );
     }
 
-    public function whereBetween(string $column, $bottom = null, $top = null, $boolean = 'AND', $not = false): static
+    /**
+     * Add a between statement to the query.
+     */
+    public function whereBetween(string $column, iterable $values, string $boolean = 'AND', bool $not = false): static
     {
+        if ($values instanceof CarbonPeriod) {
+            $values = [
+                $values->getStartDate(),
+                $values->getEndDate(),
+            ];
+        }
+
+        $values = Arr::map($values, fn($value) => $value instanceof \DateTimeInterface ? $value->getTimestamp() : $value);
+
+        $bottom = $values[0] ?? null;
+        $top = $values[1] ?? null;
+
         if ($bottom && $top) {
             $this->query[] = new MeilisearchExpression(
                 column: $column,
@@ -158,35 +212,33 @@ class MeilisearchBuilder
         return $this;
     }
 
-    public function orWhereBetween(string $column, $bottom = null, $top = null): static
+    public function orWhereBetween(string $column, iterable $values): static
     {
         return $this->whereBetween(
             column: $column,
-            bottom: $bottom,
-            top: $top,
+            values: $values,
             boolean: 'OR'
         );
     }
 
-    public function whereExists(string $column, $boolean = 'AND', $not = false): static
+    /**
+     * Add a "EXISTS" clause to the query.
+     */
+    public function whereExists(string $column, string $boolean = 'AND', bool $not = false): static
     {
         $this->query[] = new MeilisearchExpression(
             column: $column,
             operator: 'EXISTS',
+            boolean: $boolean,
             not: $not
         );
 
         return $this;
     }
 
-    public function whereNotExists(string $column): static
-    {
-        return $this->whereExists(
-            column: $column,
-            not: true
-        );
-    }
-
+    /**
+     * Add a "OR EXISTS" clause to the query.
+     */
     public function orWhereExists(string $column): static
     {
         return $this->whereExists(
@@ -195,86 +247,128 @@ class MeilisearchBuilder
         );
     }
 
-    public function orWhereNotExists(string $column): static
+    /**
+     * Add a "NOT EXISTS" clause to the query.
+     */
+    public function whereNotExists(string $column, string $boolean = 'AND'): static
     {
         return $this->whereExists(
             column: $column,
-            boolean: 'OR',
+            boolean: $boolean,
             not: true
         );
     }
 
-    public function whereIsEmpty($column, $boolean = 'AND', $not = false): static
+    /**
+     * Add a "OR NOT EXISTS" clause to the query.
+     */
+    public function orWhereNotExists(string $column): static
     {
-        $this->query[] = new MeilisearchExpression(
-            column: $column,
-            operator: 'IS EMPTY',
-            boolean: $boolean,
-            not: $not
-        );
-
-        return $this;
-    }
-
-    public function whereIsNotEmpty($column): static
-    {
-        return $this->whereIsEmpty(
-            column: $column,
-            not: true,
-        );
-    }
-
-    public function orWhereIsEmpty($column): static
-    {
-        return $this->whereIsEmpty(
+        return $this->whereNotExists(
             column: $column,
             boolean: 'OR'
         );
     }
 
-    public function orWhereIsNotEmpty($column): static
+    /**
+     * Add a "IS EMPTY" clause to the query.
+     */
+    public function whereEmpty(string|array $columns, string $boolean = 'AND', bool $not = false): static
     {
-        return $this->whereIsEmpty(
-            column: $column,
-            boolean: 'OR',
-            not: true,
-        );
-    }
-
-    public function whereIsNull($column, $boolean = 'AND', $not = false): static
-    {
-        $this->query[] = new MeilisearchExpression(
-            column: $column,
-            operator: 'IS NULL',
-            boolean: $boolean,
-            not: $not
-        );
+        foreach (Arr::wrap($columns) as $column) {
+            $this->query[] = new MeilisearchExpression(
+                column: $column,
+                operator: 'IS EMPTY',
+                boolean: $boolean,
+                not: $not
+            );
+        }
 
         return $this;
     }
 
-    public function whereIsNotNull($column): static
+    /**
+     * Add an "OR IS EMPTY" clause to the query.
+     */
+    public function orWhereEmpty(string|array $columns): static
     {
-        return $this->whereIsNull(
-            column: $column,
-            not: true,
-        );
-    }
-
-    public function orWhereIsNull($column): static
-    {
-        return $this->whereIsNull(
-            column: $column,
+        return $this->whereEmpty(
+            columns: $columns,
             boolean: 'OR'
         );
     }
 
-    public function orWhereIsNotNull($column): static
+    /**
+     * Add a "NOT IS EMPTY" clause to the query.
+     */
+    public function whereNotEmpty(string|array $columns, string $boolean = 'AND'): static
     {
-        return $this->whereIsNull(
-            column: $column,
-            boolean: 'OR',
+        return $this->whereEmpty(
+            columns: $columns,
+            boolean: $boolean,
             not: true,
+        );
+    }
+
+    /**
+     * Add an "OR NOT IS EMPTY" clause to the query.
+     */
+    public function orWhereNotEmpty(string|array $columns): static
+    {
+        return $this->whereNotEmpty(
+            columns: $columns,
+            boolean: 'OR',
+        );
+    }
+
+    /**
+     * Add a "IS NULL" clause to the query.
+     */
+    public function whereNull(string|array $columns, string $boolean = 'AND', bool $not = false): static
+    {
+        foreach (Arr::wrap($columns) as $column) {
+            $this->query[] = new MeilisearchExpression(
+                column: $column,
+                operator: 'IS NULL',
+                boolean: $boolean,
+                not: $not
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an "OR IS NULL" clause to the query.
+     */
+    public function orWhereNull(string|array $columns): static
+    {
+        return $this->whereNull(
+            columns: $columns,
+            boolean: 'OR'
+        );
+    }
+
+    /**
+     * Add a "NOT IS NULL" clause to the query.
+     */
+    public function whereNotNull(string|array $columns, $boolean = 'and'): static
+    {
+        return $this->whereNull(
+            columns: $columns,
+            boolean: $boolean,
+            not: true,
+        );
+    }
+
+    /**
+     * Add an "OR NOT IS NULL" clause to the query.
+     */
+    public function orWhereNotNull(string|array $columns): static
+    {
+        return $this->whereNotNull(
+            columns: $columns,
+            boolean: 'OR'
         );
     }
 }
