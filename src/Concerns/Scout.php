@@ -67,7 +67,10 @@ abstract class Scout
             if ($filter) {
                 $options['filter'] = isset($options['filter']) ? $options['filter'].' AND '.$filter : $filter;
             }
-            $this->debug['meilisearch'] = $options;
+            $this->debug['meilisearch'] = [
+                'query'   => $query,
+                'options' => $options
+            ];
             return $builder->search($query, $options);
         } else {
             $this->debug['meilisearch'] = get_class($this).' doesnt implement '.ScoutsMeilisearch::class;
@@ -79,7 +82,10 @@ abstract class Scout
     {
         if ($this instanceof ScoutsAlgolia) {
             $options = $this->algolia($options);
-            $this->debug['algolia'] = $options;
+            $this->debug['algolia'] = [
+                'query'   => $query,
+                'options' => $options
+            ];
             return $algolia->search($query, $options);
         } else {
             $this->debug['algolia'] = get_class($this).' doesnt implement '.ScoutsAlgolia::class;
