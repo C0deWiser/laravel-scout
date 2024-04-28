@@ -52,10 +52,16 @@ abstract class Scout
     {
         if ($this instanceof ScoutsDatabase) {
             $builder = $this->database($builder);
-            $this->debug['database'] = $builder->toRawSql();
+            $this->debug = [
+                'driver' => 'database',
+                'query'  => $builder->toRawSql()
+            ];
             return $builder;
         } else {
-            $this->debug['database'] = get_class($this).' doesnt implement '.ScoutsDatabase::class;
+            $this->debug = [
+                'driver' => 'database',
+                'error'  => get_class($this).' doesnt implement '.ScoutsDatabase::class
+            ];
             return null;
         }
     }
@@ -67,13 +73,17 @@ abstract class Scout
             if ($filter) {
                 $options['filter'] = isset($options['filter']) ? $options['filter'].' AND '.$filter : $filter;
             }
-            $this->debug['meilisearch'] = [
+            $this->debug = [
+                'driver'  => 'meilisearch',
                 'query'   => $query,
                 'options' => $options
             ];
             return $builder->search($query, $options);
         } else {
-            $this->debug['meilisearch'] = get_class($this).' doesnt implement '.ScoutsMeilisearch::class;
+            $this->debug = [
+                'driver' => 'meilisearch',
+                'error'  => get_class($this).' doesnt implement '.ScoutsMeilisearch::class
+            ];
             return null;
         }
     }
@@ -82,13 +92,17 @@ abstract class Scout
     {
         if ($this instanceof ScoutsAlgolia) {
             $options = $this->algolia($options);
-            $this->debug['algolia'] = [
+            $this->debug = [
+                'driver'  => 'algolia',
                 'query'   => $query,
                 'options' => $options
             ];
             return $algolia->search($query, $options);
         } else {
-            $this->debug['algolia'] = get_class($this).' doesnt implement '.ScoutsAlgolia::class;
+            $this->debug = [
+                'driver' => 'algolia',
+                'error'  => get_class($this).' doesnt implement '.ScoutsAlgolia::class
+            ];
             return null;
         }
     }
