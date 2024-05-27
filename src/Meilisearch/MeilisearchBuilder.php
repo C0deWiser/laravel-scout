@@ -119,7 +119,7 @@ class MeilisearchBuilder
             throw new \InvalidArgumentException('Nested arrays may not be passed to whereIn method.');
         }
 
-        $values = Arr::map($values, fn($value) => $value instanceof \DateTimeInterface ? $value->getTimestamp() : $value);
+        $values = Arr::map($values, fn($value) => (new MeilisearchExpression(value: $value))->value());
 
         return $this->where(
             column: $column,

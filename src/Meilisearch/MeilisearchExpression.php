@@ -26,6 +26,14 @@ class MeilisearchExpression
             $value = $value->getTimestamp();
         }
 
+        if ($value instanceof \BackedEnum) {
+            $value = $value->value;
+        }
+
+        if ($value instanceof \UnitEnum) {
+            $value = $value->name;
+        }
+
         return $value;
     }
 
