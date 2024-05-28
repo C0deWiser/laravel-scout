@@ -21,11 +21,11 @@ abstract class Scout
         return $this;
     }
 
-    public static function when(string $driver, array|\Closure $attributes): mixed
+    public static function when(string $driver, array|\Closure $attributes, $default = []): mixed
     {
         return config('scout.driver') == $driver ? (
             is_callable($attributes) ? call_user_func($attributes) : $attributes
-        ) : null;
+        ) : $default;
     }
 
     public function debug(): array
