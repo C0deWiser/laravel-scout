@@ -7,7 +7,7 @@ class MeilisearchExpression
     public function __construct(
         protected ?string $column = null,
         protected ?string $operator = null,
-        protected ?string $value = null,
+        protected mixed $value = null,
         protected string $boolean = 'AND',
         protected bool $not = false,
     ) {
