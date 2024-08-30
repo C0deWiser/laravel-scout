@@ -26,11 +26,6 @@ class MeilisearchRebuildCommand extends Command
      */
     public function handle()
     {
-        // https://laravel.com/docs/10.x/scout#modifying-the-import-query
-        // The makeAllSearchableUsing method may not be applicable when using a queue to batch import models.
-        // Relationships are not restored when model collections are processed by jobs.
-        config()->set('scout.queue', false);
-
         $searchable = config('scout.meilisearch.searchable', Meilisearch::searchables());
 
         foreach ($searchable as $class) {
