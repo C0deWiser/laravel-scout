@@ -62,8 +62,8 @@ class UserScout extends Scout implements ScoutsDatabase, ScoutsMeilisearch
 }
 ```
 
-    As you can see, we provide `MeilisearchBuilder` with familiar interface, that
-    is helpful for building Meilisearch filters.
+> As you can see, we provide `MeilisearchBuilder` with familiar interface, that
+is helpful for building Meilisearch filters.
 
 As this class is _invokable_ we may use it as a callback when searching.
 
