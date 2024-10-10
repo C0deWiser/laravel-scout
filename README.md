@@ -25,7 +25,7 @@ $users = User::search('query', function () {
 
 Different scout drivers has different callback signature, so we can not 
 switch between drivers without punishment. We need to implement custom 
-callback logic for every scout driver, we plan to support.
+callback logic for every scout driver we plan to support.
 
 This package provides _invokable_ abstract class, that incorporates custom 
 searches for every driver. 
