@@ -125,7 +125,7 @@ class User extends Model
     #[MeilisearchSortableAttributes(['created_at'])]
     public function toSearchableArray()
     {
-        //
+        return $this->toArray();
     }
 }
 ```
