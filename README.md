@@ -23,45 +23,24 @@ $users = User::search('query', function () {
     ->orderBy('created_at');
 ```
 
-Let's say, we want to filter users by comments count. First, we need to
-reconfigure searchable data:
+Different scout drivers has different callback signature, so we can not 
+switch between drivers without punishment. We need to implement custom 
+callback logic for every scout driver, we plan to support.
 
-```php
-use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
-
-class User extends Model {
-    use Searchable;
-    
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array<string, mixed>
-     */
-    public function toSearchableArray()
-    {
-        $array = $this->toArray();
-        
-        // Customize the data array...
-        if (config('scout.driver') == 'meilisearch') {
-            $array['comments_count'] = $this->comments()->count();
-        }
- 
-        return $array;
-    }
-}
-```
-
-> Note! `database` and `collection` drivers will work only with own model
-> attributes. If you need to index foreign attributes, you should isolate them.
-
-This package provides abstract class, that incorporates custom searches for
-every driver. Implement `Codewiser\Scout\Concerns\ScoutsDatabase`,
-`Codewiser\Scout\Concerns\ScoutsMeilisearch`, `\Codewiser\Scout\Concerns\ScoutsAlgolia` —
+This package provides _invokable_ abstract class, that incorporates custom 
+searches for every driver. 
+Implement one or few of 
+`\Codewiser\Scout\Concerns\ScoutsDatabase`,
+`\Codewiser\Scout\Concerns\ScoutsMeilisearch`, 
+`\Codewiser\Scout\Concerns\ScoutsAlgolia` —
 depending on what you want your application to support.
 
 ```php
-use Codewiser\Scout\Concerns\Scout;use Codewiser\Scout\Concerns\ScoutsDatabase;use Codewiser\Scout\Concerns\ScoutsMeilisearch;use Codewiser\Scout\Meilisearch\MeilisearchBuilder;use Illuminate\Database\Eloquent\Builder;
+use Codewiser\Scout\Concerns\Scout;
+use Codewiser\Scout\Concerns\ScoutsDatabase;
+use Codewiser\Scout\Concerns\ScoutsMeilisearch;
+use Codewiser\Scout\Meilisearch\MeilisearchBuilder;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class UserScout extends Scout implements ScoutsDatabase, ScoutsMeilisearch
 {
@@ -83,10 +62,10 @@ class UserScout extends Scout implements ScoutsDatabase, ScoutsMeilisearch
 }
 ```
 
-As you can see, we provide `MeilisearchBuilder` with familiar interface, that
-is helpful for building Meilisearch filters.
+    As you can see, we provide `MeilisearchBuilder` with familiar interface, that
+    is helpful for building Meilisearch filters.
 
-We are ready to go:
+As this class is _invokable_ we may use it as a callback when searching.
 
 ```php
 public function index(\Illuminate\Http\Request $request)
@@ -133,9 +112,14 @@ use App\Models\Flight;
 This package allows to configure Meilisearch using php attributes.
 
 ```php
-class User extends \Illuminate\Database\Eloquent\Model
+use Codewiser\Scout\Attributes\MeilisearchFilterableAttributes;
+use Codewiser\Scout\Attributes\MeilisearchSortableAttributes;
+use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
 {
-    use \Laravel\Scout\Searchable;
+    use Searchable;
     
     #[MeilisearchFilterableAttributes(['id', 'name', 'email'])]
     #[MeilisearchSortableAttributes(['created_at'])]
@@ -146,11 +130,10 @@ class User extends \Illuminate\Database\Eloquent\Model
 }
 ```
 
-Then enumerate searchable classes in `config/scout.php`:
+Then just enumerate searchable classes in `config/scout.php`:
 
 ```php
 use App\Models\User;
-use App\Models\Flight;
  
 'meilisearch' => [
     'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
@@ -163,4 +146,5 @@ use App\Models\Flight;
 
 ### Console
 
-Use `scout:meilisearch-rebuild` command to completely rebuild Meilisearch index.  
+Use `scout:meilisearch-rebuild` command to rebuild all registered Meilisearch 
+indexes.  
