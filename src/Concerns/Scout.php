@@ -21,11 +21,18 @@ abstract class Scout
         return $this;
     }
 
-    public static function when(string $driver, array|\Closure $attributes, $default = []): mixed
+    public static function when(string|array $driver, array|callable $attributes, array|callable $default = []): mixed
     {
-        return config('scout.driver') == $driver ? (
-            is_callable($attributes) ? call_user_func($attributes) : $attributes
-        ) : $default;
+        $drivers = is_array($driver) ? $driver : [$driver];
+
+        return in_array(config('scout.driver'), $drivers)
+            ? (is_callable($attributes) ? call_user_func($attributes) : $attributes)
+            : (is_callable($default) ? call_user_func($default) : $default);
+    }
+
+    public static function unless(string|array $driver, array|callable $attributes, array|callable $default = []): mixed
+    {
+        return static::when($driver, $default, $attributes);
     }
 
     public function debug(): array
@@ -90,7 +97,7 @@ abstract class Scout
         }
     }
 
-    private function _algolia(Algolia $algolia, string $query, array $options)
+    private function _algolia(Algolia $algolia, ?string $query, array $options)
     {
         if ($this instanceof ScoutsAlgolia) {
             $options = $this->algolia($options);
