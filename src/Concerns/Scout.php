@@ -78,7 +78,7 @@ abstract class Scout
     private function _meilisearch(Meilisearch $builder, ?string $query, array $options)
     {
         if ($this instanceof ScoutsMeilisearch) {
-            $filter = $this->meilisearch(new MeilisearchBuilder)->build();
+            $filter = (string) $this->meilisearch(new MeilisearchBuilder);
             if ($filter) {
                 $options['filter'] = isset($options['filter']) ? $options['filter'].' AND '.$filter : $filter;
             }

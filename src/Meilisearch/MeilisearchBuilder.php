@@ -3,6 +3,7 @@
 namespace Codewiser\Scout\Meilisearch;
 
 use Carbon\CarbonPeriod;
+use DatePeriod;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Conditionable;
@@ -16,7 +17,7 @@ class MeilisearchBuilder
      */
     public array $query = [];
 
-    public function build(): string
+    public function __toString(): string
     {
         $str = '';
 
@@ -27,22 +28,30 @@ class MeilisearchBuilder
         return trim($str);
     }
 
+    public function toArray()
+    {
+        return array_map(
+            fn(MeilisearchExpression $exp) => $exp->toString(),
+            $this->query
+        );
+    }
+
     /**
      * Add a basic where clause to the query.
      */
     public function where(
-        string|\Closure $column,
+        string|callable $column,
         $operator = null,
         $value = null,
         $boolean = 'AND',
         $not = false
     ): static {
-        if ($column instanceof \Closure) {
+        if (is_callable($column)) {
             $nested = new static;
             call_user_func($column, $nested);
             $this->query[] =
                 new MeilisearchExpression(
-                    value: '('.$nested->build().')',
+                    value: "($nested)",
                     boolean: $boolean,
                     not: $not
                 );
@@ -70,10 +79,11 @@ class MeilisearchBuilder
     /**
      * Add a basic "OR" clause to the query.
      */
-    public function orWhere(string|\Closure $column, $value = null): static
+    public function orWhere(string|callable $column, $operator = null, $value = null): static
     {
         return $this->where(
             column: $column,
+            operator: $operator,
             value: $value,
             boolean: 'OR'
         );
@@ -82,7 +92,7 @@ class MeilisearchBuilder
     /**
      * Add a basic "NOT" clause to the query.
      */
-    public function whereNot(string|\Closure $column, $value = null, $boolean = 'AND'): static
+    public function whereNot(string|callable $column, $value = null, $boolean = 'AND'): static
     {
         return $this->where(
             column: $column,
@@ -95,7 +105,7 @@ class MeilisearchBuilder
     /**
      * Add a basic "OR NOT" clause to the query.
      */
-    public function orWhereNot(string|\Closure $column, $value = null): static
+    public function orWhereNot(string|callable $column, $value = null): static
     {
         return $this->whereNot(
             column: $column,
@@ -172,7 +182,7 @@ class MeilisearchBuilder
      */
     public function whereBetween(string $column, iterable $values, string $boolean = 'AND', bool $not = false): static
     {
-        if ($values instanceof CarbonPeriod) {
+        if ($values instanceof CarbonPeriod || $values instanceof DatePeriod) {
             $values = [
                 $values->getStartDate(),
                 $values->getEndDate(),
@@ -271,7 +281,7 @@ class MeilisearchBuilder
     }
 
     /**
-     * Add a "IS EMPTY" clause to the query.
+     * Add an "IS EMPTY" clause to the query.
      */
     public function whereEmpty(string|array $columns, string $boolean = 'AND', bool $not = false): static
     {
@@ -352,7 +362,7 @@ class MeilisearchBuilder
     /**
      * Add a "NOT IS NULL" clause to the query.
      */
-    public function whereNotNull(string|array $columns, $boolean = 'and'): static
+    public function whereNotNull(string|array $columns, $boolean = 'AND'): static
     {
         return $this->whereNull(
             columns: $columns,
